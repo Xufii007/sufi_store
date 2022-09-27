@@ -1,0 +1,161 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
+import 'package:sufi_store/models/category_models.dart';
+import 'package:sufi_store/models/productModel.dart';
+import 'package:sufi_store/screens/products_details_screen.dart';
+import 'package:sufi_store/widget/header.dart';
+
+class ProductScreen extends StatefulWidget {
+  String? category;
+  ProductScreen({this.category});
+  @override
+  State<ProductScreen> createState() => _ProductScreenState();
+}
+
+class _ProductScreenState extends State<ProductScreen> {
+  TextEditingController sC = TextEditingController();
+  List<Products> allProducts = [];
+
+  getdata() {
+    FirebaseFirestore.instance
+        .collection("products")
+        .get()
+        .then((QuerySnapshot snapshot) {
+      if (widget.category == null) {
+        snapshot.docs.forEach((e) {
+          if (e.exists) {
+            setState(() {
+              allProducts.add(
+                Products(
+                    id: e["id"],
+                    productName: e['productName'],
+                    imageUrls: e['imageUrls']),
+              );
+            });
+          }
+        });
+      } else {
+        snapshot.docs
+            .where((element) => element["category"] == widget.category)
+            .forEach((e) {
+          if (e.exists) {
+            setState(() {
+              allProducts.add(
+                Products(
+                    id: e["id"],
+                    productName: e['productName'],
+                    imageUrls: e['imageUrls']),
+              );
+            });
+          }
+        });
+      }
+    });
+  }
+
+  List<Products> totalItems = [];
+
+  @override
+  void initState() {
+    Future.delayed(Duration(seconds: 1), () {
+      totalItems.addAll(allProducts);
+    });
+    getdata();
+    super.initState();
+  }
+
+  filterData(String query) {
+    List<Products> dummySearch = [];
+    dummySearch.addAll(allProducts);
+    if (query.isNotEmpty) {
+      List<Products> dummyData = [];
+      dummySearch.forEach((element) {
+        if (element.productName!.toLowerCase().contains(query.toLowerCase())) {
+          dummyData.add(element);
+        }
+      });
+      setState(() {
+        allProducts.clear();
+        allProducts.addAll(dummyData);
+      });
+      return;
+    } else {
+      setState(() {
+        allProducts.clear();
+        allProducts.addAll(totalItems);
+      });
+      return;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: PreferredSize(
+            child: Header(
+              title: "${widget.category ?? "All Products"}",
+            ),
+            preferredSize: Size.fromHeight(5.h)),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: sC,
+                onChanged: (v) {
+                  filterData(sC.text);
+                },
+                decoration: InputDecoration(
+                  hintText: 'Search your favourite pro...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2),
+                  itemCount: allProducts.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => ProductsDetailsScreen(
+                                      id: allProducts[index].id,
+                                    )));
+                      },
+                      child: Container(
+                        child: Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.black),
+                              ),
+                              child: Image.network(
+                                allProducts[index].imageUrls!.last,
+                                height: 100,
+                                width: 100,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Expanded(
+                                child: Text(
+                              allProducts[index].productName!,
+                              style: TextStyle(overflow: TextOverflow.ellipsis),
+                            )),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+            ),
+          ],
+        ));
+  }
+}

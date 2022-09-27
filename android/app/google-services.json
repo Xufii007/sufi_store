@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "411616003785",
+    "project_id": "sufi-store",
+    "storage_bucket": "sufi-store.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:411616003785:android:4670cdce9232e954a46f18",
+        "android_client_info": {
+          "package_name": "com.example.sufi_store"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "411616003785-nbnemppn1jqur234gd3e3bccmasvkpv3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdVybb6F8gFTAQHL0WCkPPC8XOS7W3ACI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "411616003785-nbnemppn1jqur234gd3e3bccmasvkpv3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
